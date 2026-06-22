@@ -24,12 +24,12 @@
             padding: 20px;
             box-sizing: border-box;
 
-            /* ===== 已更換為穩定的新 Logo 網址 ===== */
+            /* 大背景：ヨルシカ Logo 圖片 */
             background-image: url('https://upload.wikimedia.org/wikipedia/commons/2/27/Yorushika_Logo.jpg'); 
-            background-size: contain;     /* 不滿版、不拉伸，原圖比例完整呈現在螢幕內 */
-            background-position: center;  /* 讓 Logo 完美居中 */
-            background-repeat: no-repeat; /* 不重複拼貼 */
-            background-attachment: fixed; /* 固定背景 */
+            background-size: contain;     
+            background-position: center;  
+            background-repeat: no-repeat; 
+            background-attachment: fixed; 
         }
 
         .container {
@@ -46,11 +46,13 @@
             color: #5a738e;
         }
 
+        /* 歌詞卡片主體 */
         .card {
+            position: relative; /* 為了讓內部半透明背景圖能定位 */
+            overflow: hidden;   /* 避免內部圖片超出圓角 */
             background: var(--card-bg);
             padding: 3rem 2rem;
             border-radius: 12px;
-            /* 稍微加深陰影，讓純白卡片在純白 Logo 背景上能突顯出來，維持精美感 */
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08); 
             min-height: 180px;
             display: flex;
@@ -59,6 +61,28 @@
             align-items: center;
             margin-bottom: 2rem;
             transition: all 0.5s ease;
+        }
+
+        /* ===== 關鍵：利用虛擬元素做出「卡片內專屬、可自由更換的半透明背景圖」 ===== */
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            /* 透過 CSS 變數 `--card-img` 來由 JS 動態更換圖片 */
+            background-image: var(--card-img, none); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            /* 控制不透明度（0.15 代表 15% 透明度，可依喜好自行調整 0.1 ~ 0.3） */
+            opacity: 0.15; 
+            z-index: 1; /* 讓圖片在卡片底色上方 */
+            transition: background-image 0.5s ease; /* 換圖時的柔和過渡 */
+        }
+
+        /* 確保卡片內的文字與內容都在半透明圖片之上，才不會一起被變透明 */
+        .lyrics, .song-info {
+            position: relative;
+            z-index: 2; 
         }
 
         .lyrics {
@@ -78,7 +102,8 @@
         }
 
         button {
-            /* 加上純白底色，避免按鈕內部透明而在白色背景上顯得空洞 */
+            position: relative;
+            z-index: 2;
             background-color: #ffffff; 
             border: 1px solid var(--accent-color);
             color: var(--text-color);
@@ -108,7 +133,8 @@
     <div class="container">
         <h1>ヨルシカ Lyrics Generator</h1>
         
-        <div class="card">
+        <!-- 給 card 一個 id 以便讓 JavaScript 抓取並注入圖片 -->
+        <div id="lyrics-card" class="card">
             <div id="lyrics-display" class="lyrics">點擊下方按鈕，抽取一句觸動心弦的歌詞。</div>
             <div id="song-display" class="song-info"></div>
         </div>
@@ -117,49 +143,59 @@
     </div>
 
     <script>
-        // 歌詞資料庫（完全保留你提供的一開始的版本，共 9 筆）
+        // 歌詞資料庫（新增了 bg 欄位，你可以在裡面填入每一句對應的圖片網址或檔名）
         const yorushikaLyrics = [
             {
                 lyrics: "如果沒有做音樂的話就好了",
-                song: "《だから僕は音楽を辞めた》（所以我放棄了音樂）"
+                song: "《だから僕は音楽を辞めた》（所以我放棄了音樂）",
+                bg: "https://truth.bahamut.com.tw/s01/202201/0cea7cbaa3d1d9c8f4e6525036ead6b7.JPG" // <-- 請自行替換圖片網址
             },
-           {
+            {
                 lyrics: "如果沒有做音樂的話就好了",
-                song: "《だから僕は音楽を辞めた》（所以我放棄了音樂）"
+                song: "《だから僕は音楽を辞めた》（所以我放棄了音樂）",
+                bg: "https://truth.bahamut.com.tw/s01/202201/0cea7cbaa3d1d9c8f4e6525036ead6b7.JPG"
             },
             {
                 lyrics: "全部都是你的錯",
-                song: "《だから僕は音楽を辞めた》（所以我放棄了音樂）"
+                song: "《だから僕は音楽を辞めた》（所以我放棄了音樂）",
+                bg: "https://truth.bahamut.com.tw/s01/202201/0cea7cbaa3d1d9c8f4e6525036ead6b7.JPG"
             },
             {
                 lyrics: "音樂並沒有什麼賺頭",
-                song: "《だから僕は音楽を辞めた》（所以我放棄了音樂）"
+                song: "《だから僕は音楽を辞めた》（所以我放棄了音樂）",
+                bg: "https://truth.bahamut.com.tw/s01/202201/0cea7cbaa3d1d9c8f4e6525036ead6b7.JPG"
             },
             {
                 lyrics: "所以我放棄了音樂",
-                song: "《だから僕は音楽を辞めた》（所以我放棄了音樂）"
+                song: "《だから僕は音楽を辞めた》（所以我放棄了音樂）",
+                bg: "https://truth.bahamut.com.tw/s01/202201/0cea7cbaa3d1d9c8f4e6525036ead6b7.JPG"
             },
             {
                 lyrics: "もっと、もっと、もっと 更多更多更多",
-                song: "《言って》（說吧）"
+                song: "《言って》（說吧）",
+                bg: "https://i.ytimg.com/vi/F64yFFnZfkI/maxresdefault.jpg"
             },
             {
                 lyrics: "言って",
-                song: "《言って》（說吧）"
+                song: "《言って》（說吧）",
+                bg: "https://i.ytimg.com/vi/F64yFFnZfkI/maxresdefault.jpg"
             },
             {
                 lyrics: "風が私を呼んでいる 風在呼喚我",
-                song: "《千鳥》"
+                song: "《千鳥》",
+                bg: "https://i.ytimg.com/vi/t75qlQPXJGw/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDIGC8IYHwvrGCOtL-T5BHG2L7VUA"
             },
-          {
+            {
                 lyrics: "三時半 腕を振って 三點半 揮舞著手臂",
-                song: "《千鳥》"
+                song: "《千鳥》",
+                bg: "https://i.ytimg.com/vi/t75qlQPXJGw/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDIGC8IYHwvrGCOtL-T5BHG2L7VUA"
             }
         ];
 
         let lastIndex = -1;
 
         function getRandomLyrics() {
+            const cardElement = document.getElementById('lyrics-card');
             const lyricsText = document.getElementById('lyrics-display');
             const songText = document.getElementById('song-display');
             
@@ -181,6 +217,13 @@
                 // 換上新內容
                 lyricsText.innerText = selection.lyrics;
                 songText.innerText = selection.song;
+
+                // 關鍵：將抽到的背景圖片網址，灌進卡片的 CSS 變數中
+                if (selection.bg) {
+                    cardElement.style.setProperty('--card-img', `url('${selection.bg}')`);
+                } else {
+                    cardElement.style.setProperty('--card-img', 'none');
+                }
 
                 // 淡入回來
                 lyricsText.classList.remove('fade-out');
