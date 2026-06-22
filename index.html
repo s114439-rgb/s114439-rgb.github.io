@@ -1,10 +1,182 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>??????</title>
-  </head>
-  <body>
-    hello world!
-  </body>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ヨルシカ (Yorushika) 歌詞隨機抽選</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --text-color: #2c3e50;
+            --accent-color: #8faec4;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 300;
+            letter-spacing: 4px;
+            margin-bottom: 2rem;
+            color: #5a738e;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 3rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 2rem;
+            transition: all 0.5s ease;
+        }
+
+        .lyrics {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            white-space: pre-line; /* 保留換行 */
+            font-weight: 400;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .song-info {
+            font-size: 0.9rem;
+            color: #95a5a6;
+            letter-spacing: 1px;
+        }
+
+        button {
+            background-color: transparent;
+            border: 1px solid var(--accent-color);
+            color: var(--text-color);
+            padding: 12px 30px;
+            font-size: 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: var(--accent-color);
+            color: white;
+            box-shadow: 0 5px 15px rgba(143, 174, 196, 0.4);
+        }
+
+        /* 動態效果 */
+        .fade-out {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>ヨルシカ Lyrics Generator</h1>
+        
+        <div class="card">
+            <div id="lyrics-display" class="lyrics">點擊下方按鈕，抽取一句觸動心弦的歌詞。</div>
+            <div id="song-display" class="song-info"></div>
+        </div>
+
+        <button onclick="getRandomLyrics()">隨機抽選</button>
+    </div>
+
+    <script>
+        // 歌詞資料庫（可以自行自由修改、新增！）
+        const yorushikaLyrics = [
+            {
+                lyrics: "如果沒有做音樂的話就好了",
+                song: "《だから僕は音楽を辞めた》（所以我放棄了音樂）"
+            },
+           {
+                lyrics: "如果沒有做音樂的話就好了",
+                song: "《だから僕は音楽を辞めた》（所以我放棄了音樂）"
+            },
+            {
+                lyrics: "全部都是你的錯",
+                song: "《だから僕は音楽を辞めた》（所以我放棄了音樂）"
+            },
+            {
+                lyrics: "音樂並沒有什麼賺頭",
+                song: "《だから僕は音楽を辞めた》（所以我放棄了音樂）"
+            },
+            {
+                lyrics: "所以我放棄了音樂",
+                song: "《だから僕は音楽を辞めた》（所以我放棄了音樂）"
+            },
+            {
+                lyrics: "もっと、もっと、もっと",
+                song: "《言って》（說吧）"
+            },
+            {
+                lyrics: "言って",
+                song: "《言って》（說吧）"
+            },
+            {
+                lyrics: "風が私を呼んでいる",
+                song: "《千鳥》"
+            },
+          {
+                lyrics: "三時半　腕を振って",
+                song: "《千鳥》"
+            }
+        ];
+
+        let lastIndex = -1;
+
+        function getRandomLyrics() {
+            const lyricsText = document.getElementById('lyrics-display');
+            const songText = document.getElementById('song-display');
+            
+            // 先做淡出動畫
+            lyricsText.classList.add('fade-out');
+            songText.classList.add('fade-out');
+
+            setTimeout(() => {
+                let randomIndex;
+                
+                // 確保不會連續抽到同一首
+                do {
+                    randomIndex = Math.floor(Math.random() * yorushikaLyrics.length);
+                } while (randomIndex === lastIndex && yorushikaLyrics.length > 1);
+
+                lastIndex = randomIndex;
+                const selection = yorushikaLyrics[randomIndex];
+
+                // 換上新內容
+                lyricsText.innerText = selection.lyrics;
+                songText.innerText = selection.song;
+
+                // 淡入回來
+                lyricsText.classList.remove('fade-out');
+                songText.classList.remove('fade-out');
+            }, 300); // 動畫延遲
+        }
+    </script>
+</body>
 </html>
