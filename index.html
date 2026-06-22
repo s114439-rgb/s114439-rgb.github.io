@@ -63,23 +63,23 @@
             transition: all 0.5s ease;
         }
 
-        /* ===== 關鍵：利用虛擬元素做出「卡片內專屬、可自由更換的半透明背景圖」 ===== */
-        .card::before {
-            content: "";
+        /* 專門用來放卡片背景圖的標籤設定 */
+        .card-bg-img {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            /* 透過 CSS 變數 `--card-img` 來由 JS 動態更換圖片 */
-            background-image: var(--card-img, none); 
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            /* 控制不透明度（0.15 代表 15% 透明度，可依喜好自行調整 0.1 ~ 0.3） */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 讓圖片填滿卡片 */
+            object-position: center;
+            /* 控制半透明度（0.15 代表 15% 透明度，可依喜好自行調整 0.1 ~ 0.3） */
             opacity: 0.15; 
             z-index: 1; /* 讓圖片在卡片底色上方 */
-            transition: background-image 0.5s ease; /* 換圖時的柔和過渡 */
+            display: none; /* 一開始沒抽卡前先隱藏 */
+            transition: opacity 0.5s ease;
         }
 
-        /* 確保卡片內的文字與內容都在半透明圖片之上，才不會一起被變透明 */
+        /* 確保卡片內的文字與內容都在半透明圖片之上 */
         .lyrics, .song-info {
             position: relative;
             z-index: 2; 
@@ -133,8 +133,9 @@
     <div class="container">
         <h1>ヨルシカ Lyrics Generator</h1>
         
-        <!-- 給 card 一個 id 以便讓 JavaScript 抓取並注入圖片 -->
         <div id="lyrics-card" class="card">
+            <img id="card-bg" class="card-bg-img" src="" alt="bg" referrerpolicy="no-referrer">
+            
             <div id="lyrics-display" class="lyrics">點擊下方按鈕，抽取一句觸動心弦的歌詞。</div>
             <div id="song-display" class="song-info"></div>
         </div>
@@ -143,12 +144,12 @@
     </div>
 
     <script>
-        // 歌詞資料庫（新增了 bg 欄位，你可以在裡面填入每一句對應的圖片網址或檔名）
+        // 歌詞資料庫（完全保留你貼上的精美圖片網址）
         const yorushikaLyrics = [
             {
                 lyrics: "如果沒有做音樂的話就好了",
                 song: "《だから僕は音楽を辞めた》（所以我放棄了音樂）",
-                bg: "https://truth.bahamut.com.tw/s01/202201/0cea7cbaa3d1d9c8f4e6525036ead6b7.JPG" // <-- 請自行替換圖片網址
+                bg: "https://truth.bahamut.com.tw/s01/202201/0cea7cbaa3d1d9c8f4e6525036ead6b7.JPG"
             },
             {
                 lyrics: "如果沒有做音樂的話就好了",
@@ -195,7 +196,7 @@
         let lastIndex = -1;
 
         function getRandomLyrics() {
-            const cardElement = document.getElementById('lyrics-card');
+            const bgImage = document.getElementById('card-bg');
             const lyricsText = document.getElementById('lyrics-display');
             const songText = document.getElementById('song-display');
             
@@ -218,11 +219,12 @@
                 lyricsText.innerText = selection.lyrics;
                 songText.innerText = selection.song;
 
-                // 關鍵：將抽到的背景圖片網址，灌進卡片的 CSS 變數中
+                // 換上對應的背景圖片並顯示出來
                 if (selection.bg) {
-                    cardElement.style.setProperty('--card-img', `url('${selection.bg}')`);
+                    bgImage.src = selection.bg;
+                    bgImage.style.display = 'block';
                 } else {
-                    cardElement.style.setProperty('--card-img', 'none');
+                    bgImage.style.display = 'none';
                 }
 
                 // 淡入回來
