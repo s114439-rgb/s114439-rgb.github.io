@@ -9,7 +9,7 @@
             --bg-color: #f4f6f9;
             --text-color: #2c3e50;
             --accent-color: #8faec4;
-            /* 調整卡片底色為半透明白色，以利搭配毛玻璃效果 */
+            /* 將卡片底色稍微改成半透明，搭配背景圖會非常漂亮 */
             --card-bg: rgba(255, 255, 255, 0.75); 
         }
 
@@ -24,15 +24,15 @@
             padding: 20px;
             box-sizing: border-box;
 
-            /* ==================== 背景圖設定 ==================== */
-            /* 請在下方 url('...') 內填入你的圖片網址，或是跟 HTML 同資料夾的圖片檔名 */
-            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Yorushika_Logo.jpg/250px-Yorushika_Logo.jpg'); 
+            /* ==================== 在這裡設定你的背景圖 ==================== */
+            /* 你可以把下面的網址換成你自己喜歡的圖片網址或本機圖片檔名 */
+            background-image: url('https://picsum.photos/1920/1080?blur=2'); 
             
-            background-size: cover;       /* 讓圖片等比例縮放，填滿整個螢幕 */
-            background-position: center;  /* 讓圖片居中對齊 */
-            background-repeat: no-repeat; /* 防止圖片重複拼貼 */
-            background-attachment: fixed; /* 讓背景圖固定，不會隨頁面滾動 */
-            /* =================================================== */
+            background-size: cover;       /* 圖片等比例縮放至填滿螢幕 */
+            background-position: center;  /* 圖片置中 */
+            background-repeat: no-repeat; /* 圖片不重複 */
+            background-attachment: fixed; /* 背景固定，不隨網頁滾動 */
+            /* ========================================================== */
         }
 
         .container {
@@ -46,15 +46,153 @@
             font-weight: 300;
             letter-spacing: 4px;
             margin-bottom: 2rem;
-            color: #4a5e75; /* 稍微加深顏色，確保在背景圖上清晰 */
-            text-shadow: 0 2px 4px rgba(255, 255, 255, 0.8); /* 加上文字微陰影 */
+            color: #4a5e75; /* 稍微加深字體顏色以在背景圖上顯色 */
+            text-shadow: 0 2px 4px rgba(255, 255, 255, 0.8); /* 加上文字微陰影提高辨識度 */
         }
 
         .card {
             background: var(--card-bg);
-            backdrop-filter: blur(8px); /* 毛玻璃模糊效果 */
-            -webkit-backdrop-filter: blur(8px); /* 瀏覽器相容性 */
+            backdrop-filter: blur(8px); /* 加入毛玻璃模糊效果，很有ヨルシカ的清透感 */
+            -webkit-backdrop-filter: blur(8px);
             padding: 3rem 2rem;
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08); /* 稍微加深陰影使其更立體 */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); /* 微調陰影 */
             min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 2rem;
+            transition: all 0.5s ease;
+            border: 1px solid rgba(255, 255, 255, 0.4); /* 微白邊框提升質感 */
+        }
+
+        .lyrics {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            white-space: pre-line; /* 保留換行 */
+            font-weight: 400;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .song-info {
+            font-size: 0.9rem;
+            color: #7f8c8d; /* 稍微加深顏色確保可讀性 */
+            letter-spacing: 1px;
+        }
+
+        button {
+            background-color: rgba(255, 255, 255, 0.6); /* 按鈕也帶點半透明 */
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1px solid var(--accent-color);
+            color: var(--text-color);
+            padding: 12px 30px;
+            font-size: 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: var(--accent-color);
+            color: white;
+            box-shadow: 0 5px 15px rgba(143, 174, 196, 0.4);
+        }
+
+        /* 動態效果 */
+        .fade-out {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>ヨルシカ Lyrics Generator</h1>
+        
+        <div class="card">
+            <div id="lyrics-display" class="lyrics">點擊下方按鈕，抽取一句觸動心弦的歌詞。</div>
+            <div id="song-display" class="song-info"></div>
+        </div>
+
+        <button onclick="getRandomLyrics()">隨機抽選</button>
+    </div>
+
+    <script>
+        // 歌詞資料庫（完全保留你提供的一開始的版本，共 9 筆）
+        const yorushikaLyrics = [
+            {
+                lyrics: "如果沒有做音樂的話就好了",
+                song: "《だから僕は音楽を辞めた》（所以我放棄了音樂）"
+            },
+           {
+                lyrics: "如果沒有做音樂的話就好了",
+                song: "《だから僕は音楽を辞めた》（所以我放棄了音樂）"
+            },
+            {
+                lyrics: "全部都是你的錯",
+                song: "《だから僕は音楽を辞めた》（所以我放棄了音樂）"
+            },
+            {
+                lyrics: "音樂並沒有什麼賺頭",
+                song: "《だから僕は音楽を辞めた》（所以我放棄了音樂）"
+            },
+            {
+                lyrics: "所以我放棄了音樂",
+                song: "《だから僕は音楽を辞めた》（所以我放棄了音樂）"
+            },
+            {
+                lyrics: "もっと、もっと、もっと　更多更多更多",
+                song: "《言って》（說吧）"
+            },
+            {
+                lyrics: "言って",
+                song: "《言って》（說吧）"
+            },
+            {
+                lyrics: "風が私を呼んでいる　風在呼喚我",
+                song: "《千鳥》"
+            },
+          {
+                lyrics: "三時半 腕を振って　三點半 揮舞著手臂",
+                song: "《千鳥》"
+            }
+        ];
+
+        let lastIndex = -1;
+
+        function getRandomLyrics() {
+            const lyricsText = document.getElementById('lyrics-display');
+            const songText = document.getElementById('song-display');
+            
+            // 先做淡出動畫
+            lyricsText.classList.add('fade-out');
+            songText.classList.add('fade-out');
+
+            setTimeout(() => {
+                let randomIndex;
+                
+                // 確保不會連續抽到同一首
+                do {
+                    randomIndex = Math.floor(Math.random() * yorushikaLyrics.length);
+                } while (randomIndex === lastIndex && yorushikaLyrics.length > 1);
+
+                lastIndex = randomIndex;
+                const selection = yorushikaLyrics[randomIndex];
+
+                // 換上新內容
+                lyricsText.innerText = selection.lyrics;
+                songText.innerText = selection.song;
+
+                // 淡入回來
+                lyricsText.classList.remove('fade-out');
+                songText.classList.remove('fade-out');
+            }, 300); // 動畫延遲
+        }
+    </script>
+</body>
+</html>
